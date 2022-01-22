@@ -5,9 +5,14 @@ import tkinter as tk
 import mysql.connector
 import hashlib
 
+with open('config.txt', 'r') as file:
+    data = file.readlines()
+    db_user = data[0].split('=')[1]
+    db_pw = data[1].split('=')[1]
 
 def make_pw_hash(password):
     return str(hashlib.sha256(str.encode(password)).hexdigest())
+
 
 class Manager_Window(tk.Tk):
     def __init__(self, username, *args, **kwargs):
@@ -77,8 +82,8 @@ class Manager_Window(tk.Tk):
         # ---------------------------- Load database -----------------------------------------------
         self.mydb = mysql.connector.connect(
             host="localhost",
-            user="root",
-            password="chinh3458",
+            user=db_user,
+            password=db_pw,
             database="mydatabase"
         )
         self.mycursor = self.mydb.cursor()
@@ -145,13 +150,21 @@ class Manager_Window(tk.Tk):
         user_index = self.treev.focus()
         self.treev.delete(user_index)
         if self.check_user(username):
-            query = "UPDATE users " \
-                    "SET username = %s, password = %s, fullname = %s " \
-                    "WHERE user_id = %s"
-            hash_password = make_pw_hash(password)
-            self.mycursor.execute(query, (username, hash_password, fullname, user_id))
-            self.mydb.commit()
-            self.load_treev()
+            if password != '$hashing':
+                query = "UPDATE users " \
+                        "SET username = %s, password = %s, fullname = %s " \
+                        "WHERE user_id = %s"
+                hash_password = make_pw_hash(password)
+                self.mycursor.execute(query, (username, hash_password, fullname, user_id))
+                self.mydb.commit()
+                self.load_treev()
+            else:
+                query = "UPDATE users " \
+                        "SET username = %s, fullname = %s " \
+                        "WHERE user_id = %s"
+                self.mycursor.execute(query, (username, fullname, user_id))
+                self.mydb.commit()
+                self.load_treev()
         else:
             tk.messagebox.showwarning(title="Warning!", message="Existing User!")
         self.edit_user_screen.destroy()
@@ -178,10 +191,10 @@ class Manager_Window(tk.Tk):
         password_entry.pack()
         Label(self.new_user_screen, text="").pack()
 
-        Label(self.edit_user_screen, text="Full Name * ").pack()
-        fullname_entry = Entry(self.edit_user_screen, textvariable=self.password, width=30)
+        Label(self.new_user_screen, text="Full Name * ").pack()
+        fullname_entry = Entry(self.new_user_screen, textvariable=self.fullname, width=30)
         fullname_entry.pack()
-        Label(self.edit_user_screen, text="").pack()
+        Label(self.new_user_screen, text="").pack()
 
         Button(self.new_user_screen, text="Add", width=10, height=1,
                command=lambda: self.add_user(username_entry.get(), password_entry.get(), fullname_entry.get())).pack()
@@ -223,7 +236,8 @@ class Manager_Window(tk.Tk):
         user_id = self.mycursor.fetchall()[0][0]
 
         Button(self.edit_user_screen, text="Update", width=10, height=1,
-               command=lambda: self.update_treev(user_id, username_entry.get(), password_entry.get(), fullname_entry.get())).pack()
+               command=lambda: self.update_treev(user_id, username_entry.get(), password_entry.get(),
+                                                 fullname_entry.get())).pack()
         self.edit_user_screen.mainloop()
 
     def check_user(self, username):

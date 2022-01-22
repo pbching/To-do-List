@@ -8,6 +8,12 @@ from PIL import ImageTk, Image
 from tkcalendar import Calendar
 
 
+with open('config.txt', 'r') as file:
+    data = file.readlines()
+    db_user = data[0].split('=')[1]
+    db_pw = data[1].split('=')[1]
+
+
 class ToDo_App(tk.Tk):
     def __init__(self, username, *args, **kwargs):
         self.root = tk.Tk.__init__(self, *args, **kwargs)
@@ -97,16 +103,16 @@ class ToDo_App(tk.Tk):
         try:
             self.mydb = mysql.connector.connect(
                 host="localhost",
-                user="root",
-                password="chinh3458",
+                user=db_user,
+                password=db_pw,
                 database="mydatabase"
             )
             self.mycursor = self.mydb.cursor()
         except:
             self.mydb = mysql.connector.connect(
                 host="localhost",
-                user="root",
-                password="chinh3458"
+                user=db_user,
+                password=db_pw
             )
             self.mycursor = self.mydb.cursor()
             self.mycursor.execute("CREATE DATABASE mydatabase")
@@ -401,3 +407,11 @@ class ToDo_App(tk.Tk):
         from manage import Manager_Window
         f = Manager_Window("admin")
         f.mainloop()
+
+def __main__():
+    if __name__ == "__main__":
+        from login import Login_Window
+        f = Login_Window()
+        f.mainloop()
+
+__main__()

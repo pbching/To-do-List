@@ -34,12 +34,6 @@ try:
     c.execute(query, (username, password, username))
 except:
     print("Table already created")
-    # Insert admin account
-    query = "INSERT INTO users (username, password, isAdmin, fullname) VALUES (%s, %s, true, %s)"
-    username = "admin"
-    password = "admin123"
-    password = make_pw_hash(password)
-    c.execute(query, (username, password, username))
 
 mydb.commit()
 mydb.close()
