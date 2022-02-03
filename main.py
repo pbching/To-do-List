@@ -408,10 +408,12 @@ class ToDo_App(tk.Tk):
         f = Manager_Window("admin")
         f.mainloop()
 
+
 def __main__():
     if __name__ == "__main__":
         from login import Login_Window
         f = Login_Window()
         f.mainloop()
+
 
 __main__()

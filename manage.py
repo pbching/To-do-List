@@ -10,6 +10,7 @@ with open('config.txt', 'r') as file:
     db_user = data[0].split('=')[1]
     db_pw = data[1].split('=')[1]
 
+
 def make_pw_hash(password):
     return str(hashlib.sha256(str.encode(password)).hexdigest())
 
@@ -67,9 +68,9 @@ class Manager_Window(tk.Tk):
         self.treev.column("#2", width=100, anchor='w')
         self.treev.column("#3", width=100, anchor='w')
 
-        self.treev.heading("#1", text="Username", command=lambda: self.sortby(self.treev, "#1", False))
+        self.treev.heading("#1", text="Username", command=lambda: self.sort_treev(self.treev, "#1", False))
         self.treev.heading("#2", text="Password")
-        self.treev.heading("#3", text="Full Name", command=lambda: self.sortby(self.treev, "#3", False))
+        self.treev.heading("#3", text="Full Name", command=lambda: self.sort_treev(self.treev, "#3", False))
 
         # ------------------ Define Button ----------------------------------------------------------
         self.add_b = Button(self.frame, text='Add User', width=15, font=("Arial", 12), command=self.show_add_box)
@@ -123,9 +124,10 @@ class Manager_Window(tk.Tk):
             value = (username, hash_password, fullname)
             self.mycursor.execute(query, value)
             self.mydb.commit()
-            self.load_treev()
         else:
             tk.messagebox.showwarning(title="Warning!", message="Existing User!")
+
+        self.load_treev()
 
     def delete_user(self):
         try:
@@ -164,9 +166,9 @@ class Manager_Window(tk.Tk):
                         "WHERE user_id = %s"
                 self.mycursor.execute(query, (username, fullname, user_id))
                 self.mydb.commit()
-                self.load_treev()
         else:
             tk.messagebox.showwarning(title="Warning!", message="Existing User!")
+        self.load_treev()
         self.edit_user_screen.destroy()
 
     def show_add_box(self):
@@ -252,15 +254,15 @@ class Manager_Window(tk.Tk):
         f = Login_Window()
         f.mainloop()
 
-    def sortby(self, treev, col, descending):
+    def sort_treev(self, treev, col, descending):
         """sort tree contents when a column header is clicked on"""
         # grab values to sort
-        data = [(treev.set(child, col), child) for child in treev.get_children('')]
-        data.sort(reverse=descending)
-        for ix, item in enumerate(data):
+        data_list = [(treev.set(child, col), child) for child in treev.get_children('')]
+        data_list.sort(reverse=descending)
+        for ix, item in enumerate(data_list):
             treev.move(item[1], '', ix)
         # switch the heading to sort in the opposite direction
-        treev.heading(col, command=lambda: self.sortby(treev, col, int(not descending)))
+        treev.heading(col, command=lambda: self.sort_treev(treev, col, int(not descending)))
 
     def task_manager(self):
         self.destroy()
