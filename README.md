@@ -5,5 +5,7 @@ Configure file config.txt to link with your database.
 
 Run gen_db.py to generate admin account
 
+Run main.py
+
 ADMIN ACCOUNT:  
 admin - admin123
